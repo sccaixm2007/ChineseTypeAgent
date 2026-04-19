@@ -599,6 +599,10 @@ details[open] .pool-cfg-summary::after { transform: rotate(180deg); }
   width: 220px; font-size: .78rem; font-family: inherit;
   text-transform: none; letter-spacing: .05em;
 }
+.kb-key-shift {
+  width: 64px; font-size: .72rem; font-family: inherit;
+  text-transform: none; letter-spacing: 0;
+}
 .kb-key-target {
   background: var(--purple); color: #fff; border-color: var(--purple-dk);
   box-shadow: 0 3px 0 var(--purple-dk); transform: translateY(-2px);

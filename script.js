@@ -1568,7 +1568,7 @@ function completeEnRound() {
 const KB_ROWS_VISUAL = [
   ['q','w','e','r','t','y','u','i','o','p'],
   ['a','s','d','f','g','h','j','k','l',';',"'"],
-  ['z','x','c','v','b','n','m',',','.','-'],
+  ['shift','z','x','c','v','b','n','m',',','.','-'],
   [' '],
 ];
 
@@ -1579,11 +1579,12 @@ const KB_GROUPS = {
   bottom:  [...'zxcvbnm'],
   vowels:  [...'aeiou'],
   mixed:   [...'abcdefghijklmnopqrstuvwxyz', ' ', '.', ',', ';', "'", '-'],
+  mixcase: [...'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'],
 };
 
 const KB_GROUP_NAMES = {
   letters:'全部字母', home:'主键行', top:'上键行',
-  bottom:'下键行',   vowels:'元音', mixed:'混合练习',
+  bottom:'下键行',   vowels:'元音', mixed:'混合练习', mixcase:'大小写混合',
 };
 
 // ── State ──
@@ -1698,8 +1699,7 @@ function _kbKeyHandler(e) {
   if (key === ' ') {
     e.preventDefault();
   } else if (key.length === 1) {
-    key = key.toLowerCase();
-    e.preventDefault();
+    e.preventDefault();  // keep original case for case-sensitive matching
   } else {
     return;
   }
@@ -1742,10 +1742,11 @@ function renderKbKeyboard() {
     rowDiv.className = 'kb-row';
     row.forEach(k => {
       const isSpace = k === ' ';
+      const isShift = k === 'shift';
       const div     = document.createElement('div');
-      div.className = 'kb-key' + (isSpace ? ' kb-key-space' : '');
+      div.className = 'kb-key' + (isSpace ? ' kb-key-space' : '') + (isShift ? ' kb-key-shift' : '');
       div.dataset.key = isSpace ? 'space' : k;
-      div.textContent = isSpace ? '空格' : k;
+      div.textContent = isSpace ? '空格' : isShift ? '⇧ Shift' : k;
       rowDiv.appendChild(div);
     });
     kb.appendChild(rowDiv);
@@ -1754,10 +1755,12 @@ function renderKbKeyboard() {
 }
 
 function updateKbTargetHighlight() {
-  const target = kbIdx < kbSeq.length ? kbSeq[kbIdx] : null;
-  const tAttr  = target === ' ' ? 'space' : target;
+  const target  = kbIdx < kbSeq.length ? kbSeq[kbIdx] : null;
+  const isUpper = target && target >= 'A' && target <= 'Z';
+  const kAttr   = !target ? null : target === ' ' ? 'space' : isUpper ? target.toLowerCase() : target;
   document.querySelectorAll('#kb-keyboard .kb-key').forEach(el => {
-    el.classList.toggle('kb-key-target', el.dataset.key === tAttr);
+    const k = el.dataset.key;
+    el.classList.toggle('kb-key-target', k === kAttr || (isUpper && k === 'shift'));
   });
 }
 
@@ -1794,15 +1797,15 @@ function renderKbSeqStrip() {
 // ── Flash key feedback ──
 
 function flashKbKey(keyVal, ok) {
-  const kAttr = keyVal === ' ' ? 'space' : keyVal;
-  let el = null;
-  document.querySelectorAll('#kb-keyboard .kb-key').forEach(k => {
-    if (k.dataset.key === kAttr) el = k;
+  const isUpper = keyVal >= 'A' && keyVal <= 'Z';
+  const kAttr   = keyVal === ' ' ? 'space' : isUpper ? keyVal.toLowerCase() : keyVal;
+  const cls     = ok ? 'kb-key-ok' : 'kb-key-err';
+  document.querySelectorAll('#kb-keyboard .kb-key').forEach(el => {
+    if (el.dataset.key === kAttr || (isUpper && el.dataset.key === 'shift')) {
+      el.classList.add(cls);
+      setTimeout(() => el.classList.remove(cls), 180);
+    }
   });
-  if (!el) return;
-  const cls = ok ? 'kb-key-ok' : 'kb-key-err';
-  el.classList.add(cls);
-  setTimeout(() => el.classList.remove(cls), 180);
 }
 
 // ── Progress & live stats ──
