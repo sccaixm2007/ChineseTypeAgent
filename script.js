@@ -416,6 +416,125 @@ let ttsActive    = false;
 let typingStartTime = null;
 let statsTimerID    = null;
 
+// Sound state
+let soundEnabled  = true;
+let _actx         = null;
+let _lastSfxMs    = 0;
+let prevInputLen  = 0;
+
+/* ══════════════════════════════════════════════════  SOUND ENGINE  ══ */
+
+function _ac() {
+  if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_actx.state === 'suspended') _actx.resume();
+  return _actx;
+}
+
+// Single oscillator tone
+function _osc(freq, type, dur, vol, t) {
+  const ctx = _ac(), now = t ?? ctx.currentTime;
+  const osc = ctx.createOscillator(), g = ctx.createGain();
+  osc.connect(g); g.connect(ctx.destination);
+  osc.type = type; osc.frequency.setValueAtTime(freq, now);
+  g.gain.setValueAtTime(vol, now);
+  g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+  osc.start(now); osc.stop(now + dur + 0.02);
+}
+
+// Band-passed white noise burst
+function _noise(dur, f0, f1, vol, t) {
+  const ctx = _ac(), now = t ?? ctx.currentTime;
+  const sr = ctx.sampleRate;
+  const buf = ctx.createBuffer(1, Math.ceil(sr * dur), sr);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource(); src.buffer = buf;
+  const filt = ctx.createBiquadFilter();
+  filt.type = 'bandpass'; filt.Q.value = 1.2;
+  filt.frequency.setValueAtTime(f0, now);
+  if (f1) filt.frequency.exponentialRampToValueAtTime(f1, now + dur);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(vol, now);
+  g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+  src.connect(filt); filt.connect(g); g.connect(ctx.destination);
+  src.start(now);
+}
+
+// ── Public SFX ──
+
+function sfxTypeOk() {
+  if (!soundEnabled) return;
+  const now = Date.now();
+  if (now - _lastSfxMs < 40) return;   // throttle rapid input
+  _lastSfxMs = now;
+  _osc(1100, 'triangle', 0.055, 0.11);
+}
+
+function sfxTypeErr() {
+  if (!soundEnabled) return;
+  const now = Date.now();
+  if (now - _lastSfxMs < 60) return;
+  _lastSfxMs = now;
+  const ctx = _ac(), t = ctx.currentTime;
+  _osc(220, 'sawtooth', 0.07, 0.13, t);
+  _osc(180, 'sine',     0.09, 0.07, t);
+}
+
+function sfxComplete() {
+  if (!soundEnabled) return;
+  const ctx = _ac(), t = ctx.currentTime;
+  [523, 659, 784, 1047].forEach((f, i) => _osc(f, 'sine', 0.22, 0.22, t + i * 0.09));
+}
+
+function sfxDrawAppear() {
+  if (!soundEnabled) return;
+  const ctx = _ac(), t = ctx.currentTime;
+  _noise(0.4, 250, 2500, 0.18, t);
+  [1047, 1319, 1568].forEach((f, i) => _osc(f, 'sine', 0.18, 0.14, t + 0.05 + i * 0.08));
+}
+
+function sfxFlip() {
+  if (!soundEnabled) return;
+  const ctx = _ac(), t = ctx.currentTime;
+  _noise(0.38, 3000, 350, 0.18, t);
+  _osc(280, 'sine', 0.18, 0.10, t + 0.32);
+}
+
+function sfxReveal(rarity) {
+  if (!soundEnabled) return;
+  const ctx = _ac(), t = ctx.currentTime;
+  if (rarity === 'legendary') {
+    const mel  = [523,659,784,523,784,1047,1319,1047];
+    const har  = [659,784,988,659,988,1319,1568,1319];
+    mel.forEach((f,i) => _osc(f, 'sine', 0.30, 0.24, t + i*0.10));
+    har.forEach((f,i) => _osc(f, 'sine', 0.24, 0.10, t + i*0.10 + 0.05));
+    _noise(0.6, 1000, 4000, 0.12, t + 0.4);
+  } else if (rarity === 'rare') {
+    [784,988,1175,1568].forEach((f,i) => _osc(f, 'sine', 0.24, 0.20, t + i*0.09));
+    _noise(0.3, 800, 3000, 0.10, t + 0.2);
+  } else {
+    [1047,1319].forEach((f,i) => _osc(f, 'sine', 0.20, 0.18, t + i*0.10));
+  }
+}
+
+// ── Mute toggle ──
+
+function initSound() {
+  soundEnabled = LS.get('ctcard_sound', true);
+  _updateMuteBtn();
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  LS.set('ctcard_sound', soundEnabled);
+  _updateMuteBtn();
+}
+
+function _updateMuteBtn() {
+  const btn = $('mute-btn');
+  if (btn) btn.textContent = soundEnabled ? '🔊' : '🔇';
+}
+
 /* ══════════════════════════════════════════════════  UTILS  ══ */
 
 const $ = id => document.getElementById(id);
@@ -476,6 +595,8 @@ function refreshStats() {
 $('login-btn').addEventListener('click', doLogin);
 $('name-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
+$('mute-btn').addEventListener('click', toggleSound);
+
 function doLogin() {
   const name = $('name-input').value.trim();
   if (!name) { $('name-input').focus(); return; }
@@ -483,6 +604,7 @@ function doLogin() {
   $('login-panel').classList.add('hidden');
   $('app').classList.remove('hidden');
   $('greeting').textContent = `👋 你好，${name}！`;
+  initSound();
   refreshStats();
   renderCollection();
 }
@@ -592,6 +714,7 @@ function loadRound() {
   const inp = $('type-input');
   inp.value    = '';
   inp.disabled = false;
+  prevInputLen = 0;
   $('score-card').classList.add('hidden');
   $('rt-stats').classList.add('hidden');
   $('rts-time').textContent = '0:00';
@@ -696,6 +819,14 @@ function onInput() {
   // Start timer on first keystroke
   if (ic.length > 0 && !typingStartTime) startStatsTimer();
 
+  // Keystroke sound (only when adding chars, not deleting)
+  if (ic.length > prevInputLen && ic.length <= targetChars.length) {
+    const idx = ic.length - 1;
+    const ok  = (ic[idx]||'').normalize('NFC') === targetChars[idx];
+    ok ? sfxTypeOk() : sfxTypeErr();
+  }
+  prevInputLen = ic.length;
+
   renderTarget(ic);
   updateRtStats();
   $('acc-badge').textContent = `准确率：${calcAcc(ic)}%`;
@@ -768,6 +899,8 @@ function completeRound() {
 
   setStars(getStars() + 1);
   setDones(getDones() + 1);
+
+  sfxComplete();
 
   const card  = drawCard();
   const count = addToColl(card);
@@ -930,15 +1063,18 @@ function showDrawModal(card, count) {
   flip.onclick = () => { if (!flipDone) { flipDone = true; doFlip(card, count); } };
 
   overlay.classList.remove('hidden');
+  sfxDrawAppear();
 }
 
 function doFlip(card, count) {
   $('card-flip').classList.add('no-float');
   $('card-inner').classList.add('flipped');
   $('flip-hint').classList.add('hidden');
+  sfxFlip();
 
   setTimeout(() => {
     spawnSparkles(card.rarity);
+    sfxReveal(card.rarity);
 
     if (card.rarity === 'legendary') $('draw-overlay').classList.add('overlay-legendary');
     else if (card.rarity === 'rare') $('draw-overlay').classList.add('overlay-rare');
