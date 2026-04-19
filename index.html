@@ -40,6 +40,7 @@
   <!-- 标签导航 -->
   <nav class="tab-nav">
     <button class="tab-btn active" data-tab="typing">✏️ 打字练习</button>
+    <button class="tab-btn"        data-tab="english">📝 英文练习</button>
     <button class="tab-btn"        data-tab="keyboard">⌨️ 键盘练习</button>
     <button class="tab-btn"        data-tab="collection">🃏 卡牌收藏</button>
   </nav>
@@ -152,6 +153,90 @@
     </section>
 
   </div><!-- /tab-typing -->
+
+  <!-- ══ 英文练习 Tab ══ -->
+  <div id="tab-english" class="tab-pane hidden">
+
+    <!-- ─ 课文输入区 ─ -->
+    <section id="en-input-sec">
+      <h2 class="sec-title">📝 英文打字练习</h2>
+      <p class="hint" id="en-hint">粘贴英文文章，原样练习（空格也要打），完成后可以抽取卡牌！</p>
+      <textarea id="en-source-text"
+        placeholder="Paste English text here... e.g.: The quick brown fox jumps over the lazy dog. She sells seashells by the seashore."></textarea>
+      <div class="options-row">
+        <label class="radio-label">
+          <input type="radio" name="en-order" value="random" checked><span>随机取句</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="en-order" value="sequential"><span>顺序取句</span>
+        </label>
+        <span class="hint-sm">（每次 2 句）</span>
+      </div>
+      <button id="en-start-btn" class="btn btn-primary btn-lg">开始练习 ▶</button>
+    </section>
+
+    <!-- ─ 打字训练区 ─ -->
+    <section id="en-training-sec" class="hidden">
+      <div class="training-top">
+        <button id="en-back-btn" class="btn btn-outline btn-sm">← 换课文</button>
+        <span id="en-acc-badge" class="acc-badge">准确率：--</span>
+      </div>
+
+      <div id="en-rt-stats" class="rt-stats hidden">
+        <div class="rts-item"><span class="rts-icon">⏱</span><span id="en-rts-time">0:00</span></div>
+        <div class="rts-sep"></div>
+        <div class="rts-item"><span class="rts-icon">⚡</span><span id="en-rts-cpm">0</span><span class="rts-unit">键/分</span></div>
+        <div class="rts-sep"></div>
+        <div class="rts-item"><span class="rts-icon">🎯</span><span id="en-rts-acc">--%</span></div>
+        <div class="rts-sep"></div>
+        <div class="rts-item"><span class="rts-icon">❌</span><span id="en-rts-errs">0</span><span class="rts-unit">错误</span></div>
+      </div>
+
+      <div class="field-label">目标文本</div>
+      <div id="en-target-display" class="target-display en-target-display"></div>
+
+      <div class="field-label">在下方打字</div>
+      <textarea id="en-type-input" class="type-input"
+        placeholder="Start typing here..."
+        spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+
+      <div class="row-end">
+        <button id="en-submit-btn" class="btn btn-secondary">提交 ✓</button>
+      </div>
+
+      <div id="en-score-card" class="score-card hidden">
+        <div class="sc-head">
+          <span id="en-sc-emoji" class="sc-emoji">🎉</span>
+          <div>
+            <div id="en-sc-title" class="sc-title">完成！正在抽卡……</div>
+            <div id="en-sc-sub"   class="sc-sub"></div>
+          </div>
+        </div>
+        <div class="sc-grid">
+          <div class="sc-cell sc-cell-acc">
+            <div id="en-sc-acc"  class="sc-val">--%</div>
+            <div class="sc-lab">准确率</div>
+          </div>
+          <div class="sc-cell sc-cell-errs">
+            <div id="en-sc-errs" class="sc-val">-</div>
+            <div class="sc-lab">错误字数</div>
+          </div>
+          <div class="sc-cell sc-cell-cpm">
+            <div id="en-sc-cpm"  class="sc-val">-</div>
+            <div class="sc-lab">键 / 分钟</div>
+          </div>
+          <div class="sc-cell sc-cell-time">
+            <div id="en-sc-time" class="sc-val">-</div>
+            <div class="sc-lab">完成用时</div>
+          </div>
+        </div>
+        <div class="row-end" style="margin-top:14px">
+          <button id="en-next-btn" class="btn btn-primary btn-lg">下一段 →</button>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /tab-english -->
 
   <!-- ══ 键盘练习 Tab ══ -->
   <div id="tab-keyboard" class="tab-pane hidden">

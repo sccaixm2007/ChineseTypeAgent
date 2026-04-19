@@ -505,6 +505,24 @@ details[open] .pool-cfg-summary::after { transform: rotate(180deg); }
 .pool-cfg-ta:focus { border-color: var(--purple); }
 @media (max-width: 600px) { .pool-cfg-grid { grid-template-columns: 1fr; } }
 
+/* ══════════════════════════════════════════════════  ENGLISH PRACTICE  ══ */
+
+/* Monospace target for accurate char alignment */
+.en-target-display {
+  font-family: 'Courier New', Consolas, monospace;
+  word-break: break-word;
+}
+
+/* Space character indicator: show as · (pending/wrong) or colored background (correct/current) */
+.en-sp {
+  display: inline-block;
+  min-width: .42em;
+  font-size: .7em;
+  vertical-align: middle;
+  opacity: .55;
+}
+.en-sp.correct, .en-sp.wrong, .en-sp.current { opacity: 1; font-size: .8em; }
+
 /* ══════════════════════════════════════════════════  KEYBOARD PRACTICE  ══ */
 
 .kb-group-grid {
