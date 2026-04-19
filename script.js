@@ -743,8 +743,10 @@ function pickSentences() {
   const n    = Math.min(3, sentences.length);
   const mode = getOrderMode();
   if (mode === 'sequential') {
+    if (seqIdx >= sentences.length) return [];
+    const take = Math.min(3, sentences.length - seqIdx);
     const picks = [];
-    for (let i = 0; i < n; i++) picks.push(sentences[seqIdx++ % sentences.length]);
+    for (let i = 0; i < take; i++) picks.push(sentences[seqIdx++]);
     return picks;
   }
   if (usedIdx.length + n > sentences.length) usedIdx = [];
@@ -760,6 +762,14 @@ function loadRound() {
   typingStartTime = null;
 
   const picks = pickSentences();
+
+  if (picks.length === 0) {
+    $('training-sec').classList.add('hidden');
+    $('text-input-sec').classList.remove('hidden');
+    $('score-card').classList.add('hidden');
+    $('rt-stats').classList.add('hidden');
+    return;
+  }
 
   sentTexts  = picks.map(s => s.replace(/\s+/g, '').normalize('NFC'));
   sentBounds = [];
