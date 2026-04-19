@@ -1063,29 +1063,18 @@ window.speechSynthesis && window.speechSynthesis.addEventListener &&
 /* ══════════════════════════════════════════════════  CARD DRAW  ══ */
 
 function drawCard() {
-  // Rarity
   const roll   = Math.random() * 100;
   const rarity = roll < 5 ? 'legendary' : roll < 30 ? 'rare' : 'common';
 
-  // Check image pools for this rarity
-  const hasSys  = (SYSTEM_POOL[rarity]||[]).length > 0;
-  const hasCust = (CUSTOM_POOL[rarity]||[]).length > 0;
-
-  if (hasSys || hasCust) {
-    let poolType, pool;
-    if (hasSys && hasCust) {
-      poolType = Math.random() < 0.35 ? 'custom' : 'system';
-    } else {
-      poolType = hasCust ? 'custom' : 'system';
-    }
-    pool = poolType === 'custom' ? CUSTOM_POOL[rarity] : SYSTEM_POOL[rarity];
+  const pool = CUSTOM_POOL[rarity] || [];
+  if (pool.length > 0) {
     const imgPath = pool[Math.floor(Math.random() * pool.length)];
-    return { rarity, poolType, imgPath, isImage: true };
+    return { rarity, poolType: 'custom', imgPath, isImage: true };
   }
 
-  // Emoji fallback
-  const pool = CARDS.filter(c => c.rarity === rarity);
-  const card = pool[Math.floor(Math.random() * pool.length)];
+  // Emoji fallback (if custom pool empty for this rarity)
+  const emojiPool = CARDS.filter(c => c.rarity === rarity);
+  const card = emojiPool[Math.floor(Math.random() * emojiPool.length)];
   return { ...card, poolType: 'emoji', isImage: false };
 }
 
@@ -1293,14 +1282,8 @@ function unknownCardHTML(card) {
 const POOL_CFG_KEY = 'ctcard_pool_cfg';
 
 function loadPoolCfg() {
-  const cfg = LS.get(POOL_CFG_KEY, null);
-  if (!cfg) return;
-  if (cfg.sc) SYSTEM_POOL.common    = cfg.sc;
-  if (cfg.sr) SYSTEM_POOL.rare      = cfg.sr;
-  if (cfg.sl) SYSTEM_POOL.legendary = cfg.sl;
-  if (cfg.cc) CUSTOM_POOL.common    = cfg.cc;
-  if (cfg.cr) CUSTOM_POOL.rare      = cfg.cr;
-  if (cfg.cl) CUSTOM_POOL.legendary = cfg.cl;
+  // Clear any stale saved config so code-defined CUSTOM_POOL is always used
+  localStorage.removeItem(POOL_CFG_KEY);
 }
 
 function populatePoolCfgUI() {
