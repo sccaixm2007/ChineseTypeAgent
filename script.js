@@ -611,6 +611,7 @@ function doReset() {
 function doLogout() {
   stopTTS();
   stopStatsTimer();
+  if (kbActive) stopKbRound();
   typingStartTime = null;
   roundActive     = false;
   currentUser     = '';
@@ -1326,4 +1327,278 @@ function showErrModal() {
       }).join('')
     : '<div class="no-errs">🎉 暂无错误记录，继续加油！</div>';
   $('error-modal').classList.remove('hidden');
+}
+
+/* ══════════════════════════════════════════════════  KEYBOARD PRACTICE  ══ */
+
+const KB_ROWS_VISUAL = [
+  ['q','w','e','r','t','y','u','i','o','p'],
+  ['a','s','d','f','g','h','j','k','l',';',"'"],
+  ['z','x','c','v','b','n','m',',','.','-'],
+  [' '],
+];
+
+const KB_GROUPS = {
+  letters: [...'abcdefghijklmnopqrstuvwxyz'],
+  home:    [...'asdfghjkl'],
+  top:     [...'qwertyuiop'],
+  bottom:  [...'zxcvbnm'],
+  vowels:  [...'aeiou'],
+  mixed:   [...'abcdefghijklmnopqrstuvwxyz', ' ', '.', ',', ';', "'", '-'],
+};
+
+const KB_GROUP_NAMES = {
+  letters:'全部字母', home:'主键行', top:'上键行',
+  bottom:'下键行',   vowels:'元音', mixed:'混合练习',
+};
+
+// ── State ──
+let kbGroup     = 'letters';
+let kbLength    = 30;
+let kbSeq       = [];
+let kbIdx       = 0;
+let kbErrors    = 0;
+let kbStartTime = null;
+let kbActive    = false;
+let kbLiveTimer = null;
+
+// ── Group buttons ──
+document.querySelectorAll('.kb-group-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.kb-group-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    kbGroup = btn.dataset.group;
+  });
+});
+
+// Stop keyboard round when switching away from keyboard tab
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (kbActive && btn.dataset.tab !== 'keyboard') stopKbRound();
+  });
+});
+
+$('kb-start-btn').addEventListener('click', startKbRound);
+$('kb-stop-btn').addEventListener('click',  stopKbRound);
+$('kb-again-btn').addEventListener('click', () => {
+  $('kb-result-sec').classList.add('hidden');
+  $('kb-setup-sec').classList.remove('hidden');
+});
+$('kb-back-btn').addEventListener('click', () => {
+  $('kb-result-sec').classList.add('hidden');
+  $('kb-setup-sec').classList.remove('hidden');
+});
+
+// ── Round management ──
+
+function startKbRound() {
+  const lenEl = document.querySelector('input[name="kb-len"]:checked');
+  kbLength    = lenEl ? parseInt(lenEl.value) : 30;
+
+  const group = KB_GROUPS[kbGroup];
+  kbSeq       = Array.from({ length: kbLength }, () => group[Math.floor(Math.random() * group.length)]);
+  kbIdx       = 0;
+  kbErrors    = 0;
+  kbStartTime = null;
+  kbActive    = true;
+
+  $('kb-setup-sec').classList.add('hidden');
+  $('kb-result-sec').classList.add('hidden');
+  $('kb-practice-sec').classList.remove('hidden');
+
+  renderKbKeyboard();
+  renderKbSeqStrip();
+  updateKbProgress();
+  updateKbLiveStats();
+  startKbLiveTimer();
+  document.addEventListener('keydown', _kbKeyHandler);
+}
+
+function stopKbRound() {
+  kbActive = false;
+  document.removeEventListener('keydown', _kbKeyHandler);
+  stopKbLiveTimer();
+  $('kb-practice-sec').classList.add('hidden');
+  $('kb-setup-sec').classList.remove('hidden');
+}
+
+function endKbRound() {
+  document.removeEventListener('keydown', _kbKeyHandler);
+  stopKbLiveTimer();
+
+  const elapsed = kbStartTime ? (Date.now() - kbStartTime) / 1000 : 0;
+  const total   = kbSeq.length + kbErrors;
+  const acc     = Math.round(kbSeq.length / total * 100);
+  const mins    = elapsed / 60;
+  const kpm     = mins > 0.01 ? Math.round(kbSeq.length / mins) : 0;
+
+  sfxComplete();
+
+  setStars(getStars() + 1);
+  setDones(getDones() + 1);
+  const card  = drawCard();
+  const count = addToColl(card);
+  refreshStats();
+
+  const emoji = acc === 100 ? '🏆' : acc >= 80 ? '🎉' : acc >= 60 ? '👍' : '💪';
+  $('kb-sc-emoji').textContent = emoji;
+  $('kb-sc-title').textContent = '键盘练习完成！正在抽卡……';
+  $('kb-sc-sub').textContent   = `${KB_GROUP_NAMES[kbGroup]} · ⭐ ${getStars()} 颗星`;
+  $('kb-sc-acc').textContent   = acc + '%';
+  $('kb-sc-errs').textContent  = kbErrors + ' 次';
+  $('kb-sc-kpm').textContent   = kpm > 0 ? kpm : '--';
+  $('kb-sc-time').textContent  = elapsed > 1 ? formatTime(elapsed) : '--';
+
+  $('kb-practice-sec').classList.add('hidden');
+  $('kb-result-sec').classList.remove('hidden');
+  setTimeout(() => showDrawModal(card, count), 800);
+}
+
+// ── Key handler ──
+
+function _kbKeyHandler(e) {
+  if (!kbActive) return;
+  if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+  let key = e.key;
+  if (key === ' ') {
+    e.preventDefault();
+  } else if (key.length === 1) {
+    key = key.toLowerCase();
+    e.preventDefault();
+  } else {
+    return;
+  }
+
+  if (kbStartTime === null) kbStartTime = Date.now();
+
+  const target = kbSeq[kbIdx];
+  if (key === target) {
+    sfxTypeOk();
+    flashKbKey(target, true);
+    kbIdx++;
+    renderKbSeqStrip();
+    updateKbProgress();
+    updateKbLiveStats();
+    if (kbIdx >= kbSeq.length) {
+      kbActive = false;
+      updateKbTargetHighlight();
+      setTimeout(endKbRound, 300);
+    } else {
+      updateKbTargetHighlight();
+    }
+  } else {
+    sfxTypeErr();
+    kbErrors++;
+    flashKbKey(target, false);
+    updateKbLiveStats();
+    const cur = document.querySelector('.kb-sc-current');
+    if (cur) { cur.classList.add('kb-shake'); setTimeout(() => cur.classList.remove('kb-shake'), 300); }
+  }
+}
+
+// ── Render QWERTY keyboard ──
+
+function renderKbKeyboard() {
+  const kb = $('kb-keyboard');
+  if (!kb) return;
+  kb.innerHTML = '';
+  KB_ROWS_VISUAL.forEach(row => {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'kb-row';
+    row.forEach(k => {
+      const isSpace = k === ' ';
+      const div     = document.createElement('div');
+      div.className = 'kb-key' + (isSpace ? ' kb-key-space' : '');
+      div.dataset.key = isSpace ? 'space' : k;
+      div.textContent = isSpace ? '空格' : k;
+      rowDiv.appendChild(div);
+    });
+    kb.appendChild(rowDiv);
+  });
+  updateKbTargetHighlight();
+}
+
+function updateKbTargetHighlight() {
+  const target = kbIdx < kbSeq.length ? kbSeq[kbIdx] : null;
+  const tAttr  = target === ' ' ? 'space' : target;
+  document.querySelectorAll('#kb-keyboard .kb-key').forEach(el => {
+    el.classList.toggle('kb-key-target', el.dataset.key === tAttr);
+  });
+}
+
+// ── Render sequence strip ──
+
+function renderKbSeqStrip() {
+  const strip = $('kb-seq-strip');
+  if (!strip) return;
+  const BEFORE = 3, AFTER = 9;
+  const start  = Math.max(0, kbIdx - BEFORE);
+  const end    = Math.min(kbSeq.length, kbIdx + AFTER + 1);
+  strip.innerHTML = '';
+  for (let i = start; i < end; i++) {
+    const ch    = kbSeq[i];
+    const isSpace = ch === ' ';
+    const span  = document.createElement('span');
+    let cls;
+    if (i < kbIdx)       cls = 'kb-sc kb-sc-past';
+    else if (i === kbIdx) cls = 'kb-sc kb-sc-current';
+    else                  cls = 'kb-sc kb-sc-next';
+    span.className  = cls;
+    if (isSpace) {
+      const lbl = document.createElement('span');
+      lbl.className   = 'kb-sc-space-lbl';
+      lbl.textContent = '␣';
+      span.appendChild(lbl);
+    } else {
+      span.textContent = ch;
+    }
+    strip.appendChild(span);
+  }
+}
+
+// ── Flash key feedback ──
+
+function flashKbKey(keyVal, ok) {
+  const kAttr = keyVal === ' ' ? 'space' : keyVal;
+  let el = null;
+  document.querySelectorAll('#kb-keyboard .kb-key').forEach(k => {
+    if (k.dataset.key === kAttr) el = k;
+  });
+  if (!el) return;
+  const cls = ok ? 'kb-key-ok' : 'kb-key-err';
+  el.classList.add(cls);
+  setTimeout(() => el.classList.remove(cls), 180);
+}
+
+// ── Progress & live stats ──
+
+function updateKbProgress() {
+  const fill = $('kb-prog-fill');
+  const txt  = $('kb-prog-text');
+  if (fill) fill.style.width = (kbLength > 0 ? kbIdx / kbLength * 100 : 0) + '%';
+  if (txt)  txt.textContent  = `${kbIdx} / ${kbLength}`;
+}
+
+function updateKbLiveStats() {
+  const accEl = $('kb-live-acc');
+  const kpmEl = $('kb-live-kpm');
+  if (!accEl || !kpmEl) return;
+  const total = kbIdx + kbErrors;
+  const acc   = total > 0 ? Math.round(kbIdx / total * 100) : 100;
+  accEl.textContent = `🎯 ${acc}%`;
+  if (kbStartTime) {
+    const mins = (Date.now() - kbStartTime) / 60000;
+    kpmEl.textContent = `⚡ ${mins > 0.001 ? Math.round(kbIdx / mins) : 0} 键/分`;
+  }
+}
+
+function startKbLiveTimer() {
+  stopKbLiveTimer();
+  kbLiveTimer = setInterval(() => { if (kbStartTime && kbActive) updateKbLiveStats(); }, 1000);
+}
+
+function stopKbLiveTimer() {
+  clearInterval(kbLiveTimer);
+  kbLiveTimer = null;
 }

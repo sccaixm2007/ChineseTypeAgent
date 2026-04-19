@@ -40,6 +40,7 @@
   <!-- 标签导航 -->
   <nav class="tab-nav">
     <button class="tab-btn active" data-tab="typing">✏️ 打字练习</button>
+    <button class="tab-btn"        data-tab="keyboard">⌨️ 键盘练习</button>
     <button class="tab-btn"        data-tab="collection">🃏 卡牌收藏</button>
   </nav>
 
@@ -151,6 +152,89 @@
     </section>
 
   </div><!-- /tab-typing -->
+
+  <!-- ══ 键盘练习 Tab ══ -->
+  <div id="tab-keyboard" class="tab-pane hidden">
+
+    <!-- ─ 设置区 ─ -->
+    <section id="kb-setup-sec">
+      <h2 class="sec-title">⌨️ 键盘打字练习</h2>
+      <p class="hint">练习英文字母和标点，熟悉键盘位置，提升打字速度！</p>
+
+      <div class="kb-group-grid">
+        <button class="kb-group-btn active" data-group="letters">🔤 全部字母 (a-z)</button>
+        <button class="kb-group-btn" data-group="home">🏠 主键行 (asdfghjkl)</button>
+        <button class="kb-group-btn" data-group="top">⬆️ 上键行 (qwertyuiop)</button>
+        <button class="kb-group-btn" data-group="bottom">⬇️ 下键行 (zxcvbnm)</button>
+        <button class="kb-group-btn" data-group="vowels">🔵 元音 (aeiou)</button>
+        <button class="kb-group-btn" data-group="mixed">✨ 混合练习 (字母+标点)</button>
+      </div>
+
+      <div class="options-row" style="margin-top:16px">
+        <span class="hint-sm">练习长度：</span>
+        <label class="radio-label"><input type="radio" name="kb-len" value="20"><span>20 键</span></label>
+        <label class="radio-label"><input type="radio" name="kb-len" value="30" checked><span>30 键</span></label>
+        <label class="radio-label"><input type="radio" name="kb-len" value="50"><span>50 键</span></label>
+      </div>
+
+      <button id="kb-start-btn" class="btn btn-primary btn-lg" style="margin-top:20px">开始练习 ▶</button>
+    </section>
+
+    <!-- ─ 练习区 ─ -->
+    <section id="kb-practice-sec" class="hidden">
+      <div class="kb-topbar">
+        <button id="kb-stop-btn" class="btn btn-outline btn-sm">✕ 停止</button>
+        <div class="kb-prog-wrap">
+          <div class="kb-prog-bar"><div id="kb-prog-fill" class="kb-prog-fill" style="width:0%"></div></div>
+          <span id="kb-prog-text" class="kb-prog-text">0 / 30</span>
+        </div>
+        <div class="kb-live-stats">
+          <span id="kb-live-acc">🎯 --%</span>
+          <span id="kb-live-kpm">⚡ 0 键/分</span>
+        </div>
+      </div>
+
+      <div id="kb-seq-strip" class="kb-seq-strip"></div>
+      <div id="kb-keyboard"  class="kb-keyboard"></div>
+      <p class="hint" style="text-align:center;margin-top:10px">按下键盘上对应的按键</p>
+    </section>
+
+    <!-- ─ 结果区 ─ -->
+    <section id="kb-result-sec" class="hidden">
+      <div class="score-card">
+        <div class="sc-head">
+          <span id="kb-sc-emoji" class="sc-emoji">🎉</span>
+          <div>
+            <div id="kb-sc-title" class="sc-title">键盘练习完成！</div>
+            <div id="kb-sc-sub"   class="sc-sub"></div>
+          </div>
+        </div>
+        <div class="sc-grid">
+          <div class="sc-cell sc-cell-acc">
+            <div id="kb-sc-acc"  class="sc-val">--%</div>
+            <div class="sc-lab">准确率</div>
+          </div>
+          <div class="sc-cell sc-cell-errs">
+            <div id="kb-sc-errs" class="sc-val">-</div>
+            <div class="sc-lab">错误次数</div>
+          </div>
+          <div class="sc-cell sc-cell-cpm">
+            <div id="kb-sc-kpm"  class="sc-val">-</div>
+            <div class="sc-lab">键 / 分钟</div>
+          </div>
+          <div class="sc-cell sc-cell-time">
+            <div id="kb-sc-time" class="sc-val">-</div>
+            <div class="sc-lab">完成用时</div>
+          </div>
+        </div>
+        <div class="row-end" style="margin-top:14px;gap:10px">
+          <button id="kb-again-btn" class="btn btn-secondary">再来一次 ↺</button>
+          <button id="kb-back-btn"  class="btn btn-primary">换练习 ✦</button>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /tab-keyboard -->
 
   <!-- ══ 卡牌收藏 Tab ══ -->
   <div id="tab-collection" class="tab-pane hidden">
