@@ -60,26 +60,22 @@ const SYSTEM_POOL = {
 // Paths are relative to index.html. User can also edit via the in-app card config UI.
 const CUSTOM_POOL = {
   common: [
-    'user_define_card/pk.png','user_define_card/pk2.png','user_define_card/pk3.png',
-    'user_define_card/pk4.png','user_define_card/pk5.png','user_define_card/pk7.png',
-    'user_define_card/pk8.png','user_define_card/pk9.png','user_define_card/pk10.png',
-    'user_define_card/pk11.png','user_define_card/pk12.png','user_define_card/pk13.png',
-    'user_define_card/pk14.png','user_define_card/pk15.png','user_define_card/pk16.png',
-    'user_define_card/pk17.png','user_define_card/pk18.png',    'user_define_card/133146.png','user_define_card/32929.png','user_define_card/33158.png',
-    'user_define_card/Brush2.png','user_define_card/BrushTeeth.png','user_define_card/Brushing.png',
-    'user_define_card/Eating2.png','user_define_card/Gaming.png','user_define_card/Happy.png',
-    'user_define_card/PlayGames.png','user_define_card/Playing.png','user_define_card/Sleeping.png',
-    'user_define_card/Sleeping2.png','user_define_card/Snacking.png','user_define_card/Snacks.png',
+    'user_define_card/28.png','user_define_card/39.png','user_define_card/47.png','user_define_card/48.png','user_define_card/49.png','user_define_card/50.png',
+    'user_define_card/51.png','user_define_card/52.png','user_define_card/29.png','user_define_card/30.png','user_define_card/31.png','user_define_card/32.png',
+    'user_define_card/33.png','user_define_card/34.png','user_define_card/35.png','user_define_card/36.png','user_define_card/37.png','user_define_card/1.png',
+    'user_define_card/5.png','user_define_card/6.png','user_define_card/9.png','user_define_card/10.png','user_define_card/11.png','user_define_card/12.png',
+    'user_define_card/13.png','user_define_card/14.png','user_define_card/15.png','user_define_card/16.png','user_define_card/17.png','user_define_card/18.png',
+    'user_define_card/19.png','user_define_card/20.png','user_define_card/2.png','user_define_card/3.png','user_define_card/4.png','user_define_card/7.png',
+    'user_define_card/8.png','user_define_card/53.png','user_define_card/54.png','user_define_card/55.png','user_define_card/56.png','user_define_card/57.png',
+    'user_define_card/58.png','user_define_card/59.png','user_define_card/60.png','user_define_card/61.png',
   ],
   rare: [
-    'user_define_card/pk19.png','user_define_card/pk20.png','user_define_card/pk21.png',
-    'user_define_card/pk22.png','user_define_card/pk23.png','user_define_card/pk24.png',
-    'user_define_card/Study.png','user_define_card/Study2.png','user_define_card/WatchTV.png',
-    'user_define_card/Watching.png','user_define_card/Work.png','user_define_card/Working2.png',
-    'user_define_card/Working3.png',
+    'user_define_card/38.png','user_define_card/40.png','user_define_card/41.png','user_define_card/42.png','user_define_card/43.png','user_define_card/44.png',
+    'user_define_card/21.png','user_define_card/22.png','user_define_card/23.png','user_define_card/24.png','user_define_card/25.png','user_define_card/26.png',
+    'user_define_card/27.png',
   ],
   legendary: [
-    'user_define_card/pk25.png','user_define_card/pk26.png',
+    'user_define_card/45.png','user_define_card/46.png',
   ],
 };
 
