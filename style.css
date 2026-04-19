@@ -78,6 +78,8 @@ body {
   border-radius: 10px; font-weight: 600;
 }
 .btn-ghost-sm:hover { background: rgba(255,255,255,.22); filter: none; }
+.btn-ghost-danger { background: rgba(239,68,68,.18); color: #fca5a5; border-color: rgba(239,68,68,.35); }
+.btn-ghost-danger:hover { background: rgba(239,68,68,.32); filter: none; }
 .btn-lg  { font-size: 1.15rem; padding: 13px 32px; border-radius: 16px; }
 .btn-sm  { font-size: .85rem; padding: 6px 14px; }
 

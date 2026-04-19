@@ -596,6 +596,36 @@ $('login-btn').addEventListener('click', doLogin);
 $('name-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
 $('mute-btn').addEventListener('click', toggleSound);
+$('logout-btn').addEventListener('click', doLogout);
+$('reset-btn').addEventListener('click', doReset);
+
+function doReset() {
+  if (!confirm(`确定要清空「${currentUser}」的所有记录吗？\n（星星、完成次数、卡牌收藏、易错字）`)) return;
+  setStars(0); setDones(0); setErrs({}); setColl({});
+  refreshStats();
+  renderCollection();
+  $('reset-btn').textContent = '已清空 ✓';
+  setTimeout(() => { $('reset-btn').textContent = '清空记录 🗑️'; }, 2000);
+}
+
+function doLogout() {
+  stopTTS();
+  stopStatsTimer();
+  typingStartTime = null;
+  roundActive     = false;
+  currentUser     = '';
+  // Reset UI back to login screen
+  $('app').classList.add('hidden');
+  $('login-panel').classList.remove('hidden');
+  $('name-input').value = '';
+  $('name-input').focus();
+  // Reset training view in case mid-round
+  $('training-sec').classList.add('hidden');
+  $('text-input-sec').classList.remove('hidden');
+  $('score-card').classList.add('hidden');
+  $('rt-stats').classList.add('hidden');
+  $('draw-overlay').classList.add('hidden');
+}
 
 function doLogin() {
   const name = $('name-input').value.trim();
