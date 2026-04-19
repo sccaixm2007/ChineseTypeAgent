@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>打字卡牌冒险</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ════════════════════════  登录  ════ -->
+<div id="login-panel">
+  <div class="login-card">
+    <div class="login-logo">✏️</div>
+    <h1>打字卡牌冒险</h1>
+    <p class="login-sub">练好打字，收集传说卡牌！</p>
+    <label for="name-input">输入你的名字：</label>
+    <input id="name-input" type="text" placeholder="小明" maxlength="12" autocomplete="off">
+    <button id="login-btn" class="btn btn-primary btn-lg">开始冒险 ✨</button>
+  </div>
+</div>
+
+<!-- ════════════════════════  主应用  ════ -->
+<div id="app" class="hidden">
+
+  <!-- 顶部状态栏 -->
+  <header class="topbar">
+    <span id="greeting" class="greeting">你好！</span>
+    <div class="topbar-right">
+      <div class="chip chip-star">⭐ <span id="star-count">0</span></div>
+      <div class="chip chip-done">🏆 <span id="done-count">0</span> 次</div>
+      <div class="chip chip-card">🃏 <span id="card-count">0/13</span></div>
+      <button id="err-btn" class="btn btn-ghost-sm">易错字 📊</button>
+    </div>
+  </header>
+
+  <!-- 标签导航 -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="typing">✏️ 打字练习</button>
+    <button class="tab-btn"        data-tab="collection">🃏 卡牌收藏</button>
+  </nav>
+
+  <!-- ══ 打字练习 Tab ══ -->
+  <div id="tab-typing" class="tab-pane">
+
+    <!-- ─ 学习模式选择（始终可见）─ -->
+    <div class="mode-selector">
+      <button class="mode-btn active" data-mode="basic">
+        📝 基础模式
+        <span class="mode-desc">打字对比</span>
+      </button>
+      <button class="mode-btn" data-mode="pinyin">
+        拼 拼音模式
+        <span class="mode-desc">显示拼音</span>
+      </button>
+      <button class="mode-btn" data-mode="reading">
+        🔊 朗读模式
+        <span class="mode-desc">边打边听</span>
+      </button>
+    </div>
+
+    <!-- ─ 课文输入区 ─ -->
+    <section id="text-input-sec">
+      <h2 class="sec-title">📖 粘贴课文</h2>
+      <p class="hint" id="mode-hint">完成练习后可以抽取卡牌！</p>
+      <textarea id="source-text"
+        placeholder="在这里粘贴中文课文……例如：小明走进教室。他看见老师在黑板上写字。同学们都安静地坐着。"></textarea>
+      <div class="options-row">
+        <label class="radio-label">
+          <input type="radio" name="order" value="random" checked><span>随机取句</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="order" value="sequential"><span>顺序取句</span>
+        </label>
+        <span class="hint-sm">（每次 3 句）</span>
+      </div>
+      <button id="start-btn" class="btn btn-primary btn-lg">开始练习 ▶</button>
+    </section>
+
+    <!-- ─ 打字训练区 ─ -->
+    <section id="training-sec" class="hidden">
+      <div class="training-top">
+        <button id="back-btn" class="btn btn-outline btn-sm">← 换课文</button>
+        <div class="training-top-right">
+          <span id="acc-badge" class="acc-badge">准确率：--</span>
+          <button id="speak-btn" class="btn btn-speak btn-sm" title="朗读目标文本">
+            🔊 朗读
+          </button>
+        </div>
+      </div>
+
+      <!-- 实时统计栏 -->
+      <div id="rt-stats" class="rt-stats hidden">
+        <div class="rts-item"><span class="rts-icon">⏱</span><span id="rts-time">0:00</span></div>
+        <div class="rts-sep"></div>
+        <div class="rts-item"><span class="rts-icon">⚡</span><span id="rts-cpm">0</span><span class="rts-unit">字/分</span></div>
+        <div class="rts-sep"></div>
+        <div class="rts-item"><span class="rts-icon">🎯</span><span id="rts-acc">--%</span></div>
+        <div class="rts-sep"></div>
+        <div class="rts-item"><span class="rts-icon">❌</span><span id="rts-errs">0</span><span class="rts-unit">错误</span></div>
+      </div>
+
+      <!-- 目标文本 -->
+      <div class="field-label">目标文本</div>
+      <div id="target-display" class="target-display"></div>
+
+      <!-- 打字区 -->
+      <div class="field-label">在下方打字</div>
+      <textarea id="type-input" class="type-input"
+        placeholder="请开始打字……"
+        spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+
+      <div class="row-end">
+        <button id="submit-btn" class="btn btn-secondary">提交 ✓</button>
+      </div>
+
+      <!-- 完成成绩卡 -->
+      <div id="score-card" class="score-card hidden">
+        <div class="sc-head">
+          <span id="sc-emoji" class="sc-emoji">🎉</span>
+          <div>
+            <div id="sc-title" class="sc-title">完成！正在抽卡……</div>
+            <div id="sc-sub"   class="sc-sub"></div>
+          </div>
+        </div>
+        <div class="sc-grid">
+          <div class="sc-cell sc-cell-acc">
+            <div id="sc-acc"  class="sc-val">--%</div>
+            <div class="sc-lab">准确率</div>
+          </div>
+          <div class="sc-cell sc-cell-errs">
+            <div id="sc-errs" class="sc-val">-</div>
+            <div class="sc-lab">错误字数</div>
+          </div>
+          <div class="sc-cell sc-cell-cpm">
+            <div id="sc-cpm"  class="sc-val">-</div>
+            <div class="sc-lab">字 / 分钟</div>
+          </div>
+          <div class="sc-cell sc-cell-time">
+            <div id="sc-time" class="sc-val">-</div>
+            <div class="sc-lab">完成用时</div>
+          </div>
+        </div>
+        <div class="row-end" style="margin-top:14px">
+          <button id="next-btn" class="btn btn-primary btn-lg">下一段 →</button>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /tab-typing -->
+
+  <!-- ══ 卡牌收藏 Tab ══ -->
+  <div id="tab-collection" class="tab-pane hidden">
+    <div class="coll-top">
+      <h2 class="sec-title">🃏 我的卡牌收藏</h2>
+      <span id="coll-badge" class="coll-badge">已获得 0 / 13 张</span>
+    </div>
+    <div class="rar-legend">
+      <span class="rar-pill rar-common">普通 70%</span>
+      <span class="rar-pill rar-rare">稀有 25%</span>
+      <span class="rar-pill rar-legendary">传说 5%</span>
+    </div>
+    <div id="card-grid" class="card-grid"></div>
+
+    <!-- 卡池配置 -->
+    <details id="pool-cfg-details" class="pool-cfg-wrap">
+      <summary class="pool-cfg-summary">🖼️ 配置图片卡池</summary>
+      <div class="pool-cfg-body">
+        <p class="hint">每行一个文件路径，保存后立即生效。<br>例：<code>cards/common/panda.png</code> 或 <code>user_define_card/common/cat.jpg</code></p>
+        <div class="pool-cfg-grid">
+          <label class="pool-cfg-label">系统卡 — 普通<textarea id="cfg-sc" class="pool-cfg-ta" placeholder="cards/common/card1.png&#10;cards/common/card2.png"></textarea></label>
+          <label class="pool-cfg-label">系统卡 — 稀有<textarea id="cfg-sr" class="pool-cfg-ta" placeholder="cards/rare/card1.png"></textarea></label>
+          <label class="pool-cfg-label">系统卡 — 传说<textarea id="cfg-sl" class="pool-cfg-ta" placeholder="cards/legendary/card1.png"></textarea></label>
+          <label class="pool-cfg-label">自定义 — 普通<textarea id="cfg-cc" class="pool-cfg-ta" placeholder="user_define_card/common/card1.png"></textarea></label>
+          <label class="pool-cfg-label">自定义 — 稀有<textarea id="cfg-cr" class="pool-cfg-ta" placeholder="user_define_card/rare/card1.png"></textarea></label>
+          <label class="pool-cfg-label">自定义 — 传说<textarea id="cfg-cl" class="pool-cfg-ta" placeholder="user_define_card/legendary/card1.png"></textarea></label>
+        </div>
+        <button id="save-pool-cfg" class="btn btn-primary">保存卡池 💾</button>
+      </div>
+    </details>
+  </div>
+
+</div><!-- /app -->
+
+
+<!-- ════════════════════════  抽卡弹窗  ════ -->
+<div id="draw-overlay" class="draw-overlay hidden">
+  <div class="draw-scene">
+
+    <h2 id="draw-title" class="draw-title">🎊 恭喜！获得新卡牌！</h2>
+
+    <div class="card-wrap">
+      <div id="sparkle-box" class="sparkle-box"></div>
+      <div id="card-flip" class="card-flip">
+        <div id="card-inner" class="card-inner">
+          <div class="card-face card-back">
+            <div class="cb-border"></div>
+            <div class="cb-body">
+              <span class="cb-icon">✏️</span>
+              <div class="cb-title">打字冒险</div>
+              <div class="cb-sub">卡 牌</div>
+            </div>
+          </div>
+          <div id="card-front" class="card-face card-front"></div>
+        </div>
+      </div>
+    </div>
+
+    <p id="flip-hint" class="flip-hint">✨ 点击卡牌翻开！</p>
+
+    <p id="pool-badge" class="pool-badge hidden"></p>
+
+    <div id="draw-btns" class="draw-btns hidden">
+      <button id="btn-continue"  class="btn btn-primary btn-lg">继续练习 →</button>
+      <button id="btn-see-coll"  class="btn btn-light   btn-lg">查看收藏 🃏</button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════  易错字弹窗  ════ -->
+<div id="error-modal" class="modal-mask hidden">
+  <div class="modal-box">
+    <h2>📊 最容易错的字</h2>
+    <div id="error-list" class="err-grid"></div>
+    <button id="close-err-btn" class="btn btn-secondary" style="margin-top:20px">关闭</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

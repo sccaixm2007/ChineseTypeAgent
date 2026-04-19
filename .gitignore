@@ -1,0 +1,14 @@
+# Ignore all image files in user_define_card — users provide their own
+user_define_card/*.png
+user_define_card/*.jpg
+user_define_card/*.jpeg
+user_define_card/*.gif
+user_define_card/*.webp
+user_define_card/**/*.png
+user_define_card/**/*.jpg
+user_define_card/**/*.jpeg
+user_define_card/**/*.gif
+user_define_card/**/*.webp
+
+# Claude session files
+.claude/
