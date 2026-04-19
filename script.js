@@ -3,19 +3,40 @@
 /* ══════════════════════════════════════════════════  CARD DATA  ══ */
 
 const CARDS = [
-  { id:'cat',           rarity:'common',    type:'动物', name:'小猫',     hp: 40,  icon:'🐱', desc:'喜欢睡懒觉，最爱晒太阳' },
-  { id:'rabbit',        rarity:'common',    type:'动物', name:'小兔',     hp: 35,  icon:'🐰', desc:'蹦蹦跳跳的可爱白兔' },
-  { id:'dog',           rarity:'common',    type:'动物', name:'小狗',     hp: 45,  icon:'🐶', desc:'忠诚勇敢，是最好的朋友' },
-  { id:'star',          rarity:'common',    type:'魔法', name:'小星星',   hp: 30,  icon:'⭐', desc:'夜空中最亮的那颗星' },
-  { id:'sunflower',     rarity:'common',    type:'自然', name:'向日葵',   hp: 35,  icon:'🌻', desc:'永远追随太阳的笑脸' },
-  { id:'bird',          rarity:'common',    type:'动物', name:'小鸟',     hp: 32,  icon:'🐦', desc:'每天清晨第一个唱歌' },
-  { id:'unicorn',       rarity:'rare',      type:'魔法', name:'独角兽',   hp: 80,  icon:'🦄', desc:'神秘森林守护者，拥有神奇魔力' },
-  { id:'dragon',        rarity:'rare',      type:'火',   name:'小龙',     hp: 90,  icon:'🐉', desc:'会喷七彩火焰的可爱小龙' },
-  { id:'magiccat',      rarity:'rare',      type:'魔法', name:'魔法猫',   hp: 75,  icon:'✨', desc:'掌握古老魔法的神秘猫咪' },
-  { id:'mermaid',       rarity:'rare',      type:'水',   name:'美人鱼',   hp: 85,  icon:'🧜', desc:'深海里最美丽的精灵' },
-  { id:'pikachu',       rarity:'legendary', type:'电',   name:'皮卡丘',   hp: 200, icon:'⚡', desc:'世界最有名的电气鼠，充满活力！' },
-  { id:'rainbowdragon', rarity:'legendary', type:'魔法', name:'彩虹龙',   hp: 250, icon:'🌈', desc:'跨越天际的彩虹神龙，拥有七色神力！' },
-  { id:'starking',      rarity:'legendary', type:'宇宙', name:'星星之王', hp: 300, icon:'👑', desc:'统治无尽星空的永恒王者！' },
+  // ── 普通 ──
+  { id:'cat',           rarity:'common',    type:'动物', name:'小猫',       hp: 40,  icon:'🐱', desc:'喜欢睡懒觉，最爱晒太阳' },
+  { id:'rabbit',        rarity:'common',    type:'动物', name:'小兔',       hp: 35,  icon:'🐰', desc:'蹦蹦跳跳的可爱白兔' },
+  { id:'dog',           rarity:'common',    type:'动物', name:'小狗',       hp: 45,  icon:'🐶', desc:'忠诚勇敢，是最好的朋友' },
+  { id:'star',          rarity:'common',    type:'魔法', name:'小星星',     hp: 30,  icon:'⭐', desc:'夜空中最亮的那颗星' },
+  { id:'sunflower',     rarity:'common',    type:'自然', name:'向日葵',     hp: 35,  icon:'🌻', desc:'永远追随太阳的笑脸' },
+  { id:'bird',          rarity:'common',    type:'动物', name:'小鸟',       hp: 32,  icon:'🐦', desc:'每天清晨第一个唱歌' },
+  { id:'fox',           rarity:'common',    type:'动物', name:'小狐狸',     hp: 38,  icon:'🦊', desc:'聪明伶俐的森林小精灵' },
+  { id:'panda',         rarity:'common',    type:'动物', name:'熊猫',       hp: 50,  icon:'🐼', desc:'黑白相间，憨态可掬的国宝' },
+  { id:'penguin',       rarity:'common',    type:'动物', name:'企鹅',       hp: 40,  icon:'🐧', desc:'穿着燕尾服的南极绅士' },
+  { id:'butterfly',     rarity:'common',    type:'自然', name:'蝴蝶',       hp: 28,  icon:'🦋', desc:'翩翩起舞，花丛中的彩虹' },
+  { id:'turtle',        rarity:'common',    type:'自然', name:'小龟',       hp: 55,  icon:'🐢', desc:'慢吞吞却永不放弃的勇士' },
+  { id:'frog',          rarity:'common',    type:'自然', name:'青蛙',       hp: 35,  icon:'🐸', desc:'荷叶上呱呱叫的小歌手' },
+  { id:'bear',          rarity:'common',    type:'动物', name:'小熊',       hp: 60,  icon:'🐻', desc:'最喜欢吃蜂蜜的可爱圆球' },
+  { id:'cloud',         rarity:'common',    type:'魔法', name:'白云',       hp: 25,  icon:'☁️', desc:'漂浮天空的棉花糖' },
+  { id:'mushroom',      rarity:'common',    type:'自然', name:'蘑菇',       hp: 30,  icon:'🍄', desc:'雨后神奇出现的小精灵' },
+  { id:'crystal',       rarity:'common',    type:'魔法', name:'水晶',       hp: 33,  icon:'💎', desc:'蕴含纯净魔力的宝石' },
+  // ── 稀有 ──
+  { id:'unicorn',       rarity:'rare',      type:'魔法', name:'独角兽',     hp: 80,  icon:'🦄', desc:'神秘森林守护者，拥有神奇魔力' },
+  { id:'dragon',        rarity:'rare',      type:'火',   name:'小龙',       hp: 90,  icon:'🐉', desc:'会喷七彩火焰的可爱小龙' },
+  { id:'magiccat',      rarity:'rare',      type:'魔法', name:'魔法猫',     hp: 75,  icon:'✨', desc:'掌握古老魔法的神秘猫咪' },
+  { id:'mermaid',       rarity:'rare',      type:'水',   name:'美人鱼',     hp: 85,  icon:'🧜', desc:'深海里最美丽的精灵' },
+  { id:'phoenix',       rarity:'rare',      type:'火',   name:'凤凰',       hp: 95,  icon:'🔥', desc:'浴火重生、永不消逝的神鸟' },
+  { id:'fairy',         rarity:'rare',      type:'魔法', name:'魔法精灵',   hp: 78,  icon:'🧚', desc:'撒下星尘就能实现愿望' },
+  { id:'wolf',          rarity:'rare',      type:'自然', name:'神狼',       hp: 88,  icon:'🐺', desc:'月光下奔跑的森林守护者' },
+  { id:'whale',         rarity:'rare',      type:'水',   name:'蓝鲸王',     hp:100,  icon:'🐋', desc:'海洋中最温柔的庞然大物' },
+  { id:'owl',           rarity:'rare',      type:'魔法', name:'智慧猫头鹰', hp: 72,  icon:'🦉', desc:'深夜守护知识的魔法使者' },
+  { id:'tiger',         rarity:'rare',      type:'火',   name:'小虎',       hp: 92,  icon:'🐯', desc:'森林之王，威猛而优雅' },
+  // ── 传说 ──
+  { id:'pikachu',       rarity:'legendary', type:'电',   name:'皮卡丘',     hp: 200, icon:'⚡', desc:'世界最有名的电气鼠，充满活力！' },
+  { id:'rainbowdragon', rarity:'legendary', type:'魔法', name:'彩虹龙',     hp: 250, icon:'🌈', desc:'跨越天际的彩虹神龙，拥有七色神力！' },
+  { id:'starking',      rarity:'legendary', type:'宇宙', name:'星星之王',   hp: 300, icon:'👑', desc:'统治无尽星空的永恒王者！' },
+  { id:'spaceship',     rarity:'legendary', type:'宇宙', name:'星际使者',   hp: 280, icon:'🚀', desc:'穿越光年、连接宇宙的神秘飞船！' },
+  { id:'galaxyguard',   rarity:'legendary', type:'宇宙', name:'银河守护者', hp: 350, icon:'🌌', desc:'镇守整条银河的无上神灵！' },
 ];
 const RARITY_LABEL  = { common:'普通', rare:'稀有', legendary:'传说' };
 const TYPE_COLOR    = { 动物:'#16a34a', 火:'#dc2626', 水:'#2563eb', 电:'#d97706', 魔法:'#7c3aed', 宇宙:'#1e40af', 自然:'#15803d' };
